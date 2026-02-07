@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: python -m outfit_ai
