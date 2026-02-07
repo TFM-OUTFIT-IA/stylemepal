@@ -4,14 +4,39 @@ Proyecto de investigacion/desarrollo para el TFM. Estructura base pensada para t
 
 ## Estructura
 
-- `src/` Codigo fuente del proyecto.
-- `data/` Datos (raw/processed/external). No se versionan datasets grandes.
-- `models/` Modelos entrenados y artefactos.
-- `notebooks/` Notebooks exploratorios.
-- `scripts/` Scripts de entrenamiento/ETL/utilidades.
-- `reports/` Informes y figuras.
-- `tests/` Pruebas.
-- `docs/` Documentacion.
+Estructura base:
+
+```
+.
+├─ src/
+│  └─ outfit_ai/         # Paquete principal (codigo productivo)
+│     ├─ __init__.py
+│     └─ __main__.py      # Entry point: python -m outfit_ai
+├─ data/
+│  ├─ raw/               # Datos crudos, sin transformar (no versionar grandes)
+│  ├─ processed/         # Datos limpios/featureados (no versionar grandes)
+│  └─ external/          # Fuentes externas y descargas
+├─ models/               # Modelos entrenados
+├─ notebooks/            # Analisis exploratorio y prototipos
+├─ scripts/              # Entrenamiento, ETL, evaluacion, utilidades
+├─ reports/
+│  └─ figures/           # Figuras para informes
+├─ tests/                # Pruebas unitarias/integracion
+├─ docs/                 # Documentacion adicional
+├─ requirements.txt      # Dependencias
+└─ README.md             # Guia rapida del proyecto
+```
+
+Guia rapida por carpeta:
+
+- `src/` Contiene el codigo estable y reutilizable. Todo lo que quieras importar debe vivir aqui.
+- `data/` Estructura de datos por etapas. Evita subir datasets grandes; usa enlaces o scripts de descarga.
+- `models/` Guardado de pesos, checkpoints y artefactos de entrenamiento.
+- `notebooks/` Notebooks de investigacion. Recomiendo nombres con fecha y objetivo (ej: `2026-02-07-eda-dataset.ipynb`).
+- `scripts/` Entradas ejecutables (ETL, entrenamiento, evaluacion). Mantenerlos simples y delegar logica a `src/`.
+- `reports/` Resultados y figuras finales para el TFM.
+- `tests/` Pruebas para asegurar calidad y evitar regresiones.
+- `docs/` Documentacion extendida, decisiones tecnicas, etc.
 
 ## Requisitos
 
