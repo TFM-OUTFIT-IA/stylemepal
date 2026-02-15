@@ -9,12 +9,12 @@ Estructura base:
 ```
 .
 ├─ src/
-│  └─ outfit_ai/         # Paquete principal (codigo productivo)
+│  └─ outfit_ai/         # Paquete principal
 │     ├─ __init__.py
 │     └─ __main__.py      # Entry point: python -m outfit_ai
 ├─ data/
-│  ├─ raw/               # Datos crudos, sin transformar (no versionar grandes)
-│  ├─ processed/         # Datos limpios/featureados (no versionar grandes)
+│  ├─ raw/               # Datos crudos, sin transformar
+│  ├─ processed/         # Datos limpios/featureados
 │  └─ external/          # Fuentes externas y descargas
 ├─ models/               # Modelos entrenados
 ├─ notebooks/            # Analisis exploratorio y prototipos
@@ -64,7 +64,3 @@ Ejecutar un comando puntual:
 ```bash
 docker compose run --rm app python -m outfit_ai
 ```
-
-## Notas
-
-- Actualiza este README con el objetivo, dataset y metrica principal del TFM.
