@@ -1,31 +1,54 @@
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.so
-*.egg-info/
-.eggs/
+.Python
 .venv/
 venv/
 ENV/
-.env
+env/
 
-# Jupyter
+# Jupyter Notebook
 .ipynb_checkpoints/
+*.ipynb_checkpoints
 
-# Data / models
-/data/**
-!/data/.gitkeep
-/models/**
-!/models/.gitkeep
+# Modelos y artefactos grandes (EXCEPCIÓN para modelo principal)
+*.h5
+*.ckpt
+# Permitir modelo principal cuando esté disponible:
+!models/fashion_classifier_efficientnetb0_polyvore.keras
+!models/*.keras
+!models/*.pkl
 
-# Reports
-/reports/figures/**
-!/reports/figures/.gitkeep
+# TensorFlow / Keras
+logs/
+tensorboard/
 
-# OS
-.DS_Store
-Thumbs.db
+# Datasets (NO subir datasets crudos grandes)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+# Permitir test images (son pocas y pequeñas)
+# data/external/test_images/ está permitido
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+tmpclaude-*
