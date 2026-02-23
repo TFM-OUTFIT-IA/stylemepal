@@ -11,4 +11,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "-m", "outfit_ai"]
+CMD ["python", "-m", "fashion_classifier"]
