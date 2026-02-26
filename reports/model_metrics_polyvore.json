@@ -1,0 +1,20 @@
+{
+  "test_accuracy": 0.9465348720550537,
+  "test_top3_accuracy": 0.9917623400688171,
+  "test_loss": 0.17864234745502472,
+  "num_classes": 11,
+  "img_size": 224,
+  "categories": [
+    "accessories",
+    "all-body",
+    "bags",
+    "bottoms",
+    "hats",
+    "jewellery",
+    "outerwear",
+    "scarves",
+    "shoes",
+    "sunglasses",
+    "tops"
+  ]
+}
