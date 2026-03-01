@@ -1,0 +1,13 @@
+:root {
+  --bg-color-main: #111a22;
+  --font-family-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color-main);
+  font-family: var(--font-family-main);
+  min-height: 100vh;
+  color: white; 
+}

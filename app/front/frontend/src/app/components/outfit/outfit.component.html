@@ -1,0 +1,58 @@
+<div class="generar-container">
+  
+  <div class="outfit-area">
+    
+    <div class="col col-1">
+      <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[0] }"></ng-container>
+      <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[1] }"></ng-container>
+    </div>
+
+    <div class="col col-2">
+      <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[2] }"></ng-container>
+      <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[3] }"></ng-container>
+      <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[4] }"></ng-container>
+    </div>
+
+    <div class="col col-3">
+      <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[5] }"></ng-container>
+      
+      <div class="action-buttons">
+        <button class="btn-generar" (click)="onGenerar()">
+          Generar <span class="icon">🪄</span>
+        </button>
+        <button class="btn-confirmar" (click)="onConfirmar()">
+          Confirmar <span class="icon">✔️</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="agent-panel">
+    <div class="agent-header">Agente</div>
+    <div class="agent-chatbox">
+      </div>
+    <div class="agent-input"></div>
+  </div>
+
+</div>
+
+<ng-template #slotTemplate let-cat="cat">
+  <div class="slot-wrapper" [class.is-locked]="locked[cat.id]">
+    
+    <div class="slot-controls">
+      <button class="mini-btn btn-random" (click)="onRandomizeSingle(cat.id)" [disabled]="locked[cat.id]" title="Cambiar prenda">🔄</button>
+      <button class="mini-btn" [ngClass]="locked[cat.id] ? 'btn-unblock' : 'btn-block'" (click)="toggleLock(cat.id)" title="Bloquear/Desbloquear">
+        {{ locked[cat.id] ? '🔓' : '❌' }}
+      </button>
+    </div>
+
+    <div class="slot-box">
+      <img *ngIf="outfit[cat.id]" [src]="outfit[cat.id].image_path" alt="{{ cat.id }}" class="slot-img">
+      <div *ngIf="!outfit[cat.id]" class="slot-placeholder">
+        {{ cat.icon }}
+      </div>
+    </div>
+
+  </div>
+</ng-template>

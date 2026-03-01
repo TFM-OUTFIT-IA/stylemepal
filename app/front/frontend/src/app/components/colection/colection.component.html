@@ -1,0 +1,35 @@
+<div class="coleccion-container">
+  
+  <div class="toolbar">
+    <div class="tools-left">
+      <button class="icon-btn add-btn" (click)="onAddClick()">➕</button>
+      <button class="icon-btn" (click)="onCleanAllClick()" title="Lavar todo">🧺</button> 
+    </div>
+    <div class="tools-right">
+      <span class="order-text">Order by: default</span>
+    </div>
+  </div>
+
+  <div class="grid-container">
+    <div class="card" *ngFor="let item of items">
+      
+      <div class="status-circle" 
+           [ngClass]="{'estado-limpio': item.limpio, 'estado-sucio': !item.limpio}"
+           (click)="toggleEstadoLimpio(item)"
+           title="Clic para cambiar estado">
+      </div>
+
+      <div class="card-image">
+        <img [src]="item.image_path" alt="Imagen de prenda" loading="lazy">
+      </div>
+
+      <div class="card-actions">
+        <button class="action-btn btn-view" (click)="onViewClick(item)">📄</button>
+        <button class="action-btn btn-edit" (click)="onEditClick(item)">✏️</button>
+        <button class="action-btn btn-delete" (click)="onDeleteClick(item)">🗑️</button>
+      </div>
+      
+    </div>
+  </div>
+
+</div>
