@@ -7,13 +7,12 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = '/api/v1/auth';
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
 
   constructor(private http: HttpClient) {}
 
   private hasToken(): boolean {
-
     if (typeof window !== 'undefined' && window.localStorage) {
       return !!localStorage.getItem('token');
     }

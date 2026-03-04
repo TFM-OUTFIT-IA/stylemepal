@@ -35,8 +35,8 @@
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, 160px);
+  gap: 16px;
   padding: 10px;
 }
 
@@ -118,3 +118,48 @@
 .btn-delete { background-color: #f44336; color: white; }
 
 .action-btn:hover { filter: brightness(1.2); }
+/* ── Folder button ── */
+.folder-btn { background-color: #2a6496; }
+.folder-btn:hover { background-color: #3a7ab8; }
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-card {
+  background-color: #1e1e1e;
+  border-radius: 20px;
+  padding: 30px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.modal-title { color: white; margin: 0; font-size: 1.2rem; }
+.file-count { color: #a0a0a0; font-size: 13px; margin: 0 0 8px 0; }
+.file-list ul { list-style: none; padding: 0; margin: 0; max-height: 160px; overflow-y: auto; }
+.file-list li { color: #ccc; font-size: 12px; padding: 3px 0; border-bottom: 1px solid #2c2c2c; }
+.more-files { color: #666 !important; font-style: italic; }
+.progress-label { color: #a0a0a0; font-size: 13px; margin: 0 0 8px 0; }
+.progress-bar { height: 8px; background-color: #333; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background-color: #4caf50; border-radius: 4px; transition: width 0.3s ease; }
+.result-section { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.result-icon { font-size: 2.5rem; }
+.result-title { color: white; font-weight: 600; margin: 0; }
+.result-msg { color: #a0a0a0; font-size: 13px; margin: 0; }
+.result-rejected { color: #f44336; font-size: 12px; margin: 0; }
+.result-note { color: #666; font-size: 11px; margin: 0; font-style: italic; }
+.modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+.modal-btn { padding: 10px 22px; border: none; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 14px; }
+.btn-upload { background-color: #4caf50; color: white; }
+.btn-upload:hover { background-color: #43a047; }
+.btn-close { background-color: #3a4f57; color: white; }
+.btn-close:hover { background-color: #4a5c63; }

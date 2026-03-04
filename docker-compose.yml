@@ -1,9 +1,56 @@
-version: "3.9"
-
 services:
-  app:
-    build: .
-    working_dir: /app
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: outfit_postgres
+    restart: always
+    env_file:
+      - ./app/back/.env
+    ports:
+      - "5432:5432"
     volumes:
-      - .:/app
-    command: python -m fashion_classifier
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./app/back
+      dockerfile: Dockerfile
+    container_name: outfit_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./app/back/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app/back/uploads:/app/uploads
+      - ./models/active:/app/data/weights:ro
+      - ./app/back/src:/app/src    
+    # Uncomment the following lines if you want to enable GPU support for the backend service
+    # deploy:
+      # resources:
+        # reservations:
+          # devices:
+            # - driver: nvidia
+            #  count: 1
+            #  capabilities: [gpu]
+
+  frontend:
+    build:
+      context: ./app/front
+      dockerfile: Dockerfile
+    container_name: outfit_frontend
+    restart: always
+    ports:
+      - "4200:80" 
+    depends_on:
+      - backend
+      
+volumes:
+  pgdata:

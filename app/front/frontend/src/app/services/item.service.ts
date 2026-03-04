@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ItemService {
-  private apiUrl = 'http://localhost:8000/api/items';
+  private apiUrl = '/api/v1/items';
 
   constructor(private http: HttpClient) {}
 
@@ -14,19 +14,18 @@ export class ItemService {
     return this.http.get<any[]>(this.apiUrl);
   }
 
-  // Subir archivo con FormData
   createItem(image: File, nombre: string): Observable<any> {
     const formData = new FormData();
-    formData.append('image', image);
+    formData.append('file', image);
     formData.append('nombre', nombre);
     return this.http.post<any>(this.apiUrl, formData);
   }
 
-  updateItem(id: number, data: any): Observable<any> {
+  updateItem(id: string, data: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, data);
   }
 
-  deleteItem(id: number): Observable<any> {
+  deleteItem(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 
@@ -34,8 +33,21 @@ export class ItemService {
     return this.http.put<any>(`${this.apiUrl}/bulk/clean-all`, {});
   }
 
-  
-  confirmOutfit(ids: number[]): Observable<any> {
+  confirmOutfit(ids: string[]): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/bulk/dirty`, { ids });
+  }
+
+  getRecommendation(style: string, weather: string, gender: string): Observable<any> {
+    const params = { style, weather, gender };
+    return this.http.get<any>(`${this.apiUrl}/recommend`, { params });
+  }
+
+  uploadBatch(files: File[]): Observable<any> {
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file, file.name));
+    return this.http.post<any>(`${this.apiUrl}/batch`, formData, {
+      reportProgress: true,
+      observe: 'events',
+    });
   }
 }

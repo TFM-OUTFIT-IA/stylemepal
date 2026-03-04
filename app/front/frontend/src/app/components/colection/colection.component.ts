@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpEventType } from '@angular/common/http';
 import { ItemService } from '../../services/item.service';
 
 @Component({
@@ -12,6 +13,15 @@ import { ItemService } from '../../services/item.service';
 export class ColectionComponent implements OnInit {
   items: any[] = [];
 
+
+  showBatchModal = false;
+  batchFiles: File[] = [];
+  batchProgress = 0;          
+  batchStatus: 'idle' | 'uploading' | 'processing' | 'done' | 'error' = 'idle';
+  batchMessage = '';
+  batchAccepted = 0;
+  batchRejected = 0;
+
   constructor(private itemService: ItemService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -20,18 +30,15 @@ export class ColectionComponent implements OnInit {
 
   cargarItems() {
     this.itemService.getItems().subscribe((data) => {
-      const timestamp = new Date().getTime();
-      
-      this.items = data.map(item => ({
-        ...item,
-        image_path: `${item.image_path}?t=${timestamp}`
-      }));
-
-      // Forzar dectección de cambios por espera a la api
-      this.cdr.detectChanges(); 
+      this.items = data;
+      this.cdr.detectChanges();
     });
   }
 
+  getImageUrl(imagePath: string): string {
+    const cleanPath = imagePath.split('?')[0];
+    return `${cleanPath}?t=${new Date().getTime()}`;
+  }
 
   onAddClick() {
     const fileInput = document.createElement('input');
@@ -40,22 +47,91 @@ export class ColectionComponent implements OnInit {
     fileInput.onchange = (event: any) => {
       const file = event.target.files[0];
       if (file) {
-        const nombreSimulado = prompt("Introduce un nombre de prueba para este modelo:", "Modelo IA 1") || "Modelo IA 1";
-        this.itemService.createItem(file, nombreSimulado).subscribe(() => {
-          this.cargarItems(); 
+        const nombre = prompt("Nombre para esta prenda:", file.name.replace(/\.[^.]+$/, '')) || file.name;
+        this.itemService.createItem(file, nombre).subscribe(() => {
+          this.cargarItems();
         });
       }
     };
     fileInput.click();
   }
 
+  onFolderClick() {
+    const folderInput = document.createElement('input');
+    folderInput.type = 'file';
+    folderInput.accept = 'image/*';
+    folderInput.multiple = true;
+    (folderInput as any).webkitdirectory = true;
+    (folderInput as any).directory = true;
+
+    folderInput.onchange = (event: any) => {
+      const files: File[] = Array.from(event.target.files).filter((f: any) =>
+        f.type.startsWith('image/')
+      ) as File[];
+
+      if (files.length === 0) {
+        alert('No se encontraron imágenes en la carpeta seleccionada.');
+        return;
+      }
+
+      this.batchFiles = files;
+      this.batchProgress = 0;
+      this.batchStatus = 'idle';
+      this.batchMessage = '';
+      this.batchAccepted = 0;
+      this.batchRejected = 0;
+      this.showBatchModal = true;
+      this.cdr.detectChanges();
+    };
+    folderInput.click();
+  }
+
+  startBatchUpload() {
+    if (this.batchFiles.length === 0) return;
+
+    this.batchStatus = 'uploading';
+    this.batchProgress = 0;
+    this.cdr.detectChanges();
+
+    this.itemService.uploadBatch(this.batchFiles).subscribe({
+      next: (event: any) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.batchProgress = Math.round(100 * event.loaded / event.total);
+          this.cdr.detectChanges();
+        } else if (event.type === HttpEventType.Response) {
+          const body = event.body;
+          this.batchStatus = 'processing';
+          this.batchMessage = body.message;
+          this.batchAccepted = body.item_ids?.length ?? 0;
+          const rejMatch = body.message.match(/Rejected (\d+)/);
+          this.batchRejected = rejMatch ? parseInt(rejMatch[1]) : 0;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        this.batchStatus = 'error';
+        this.batchMessage = err.error?.detail ?? 'Error al subir las imágenes.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  closeBatchModal() {
+    this.showBatchModal = false;
+    if (this.batchStatus === 'processing' || this.batchStatus === 'done') {
+      this.cargarItems();
+    }
+    this.batchFiles = [];
+    this.batchStatus = 'idle';
+  }
+  
   onViewClick(item: any) {
-    alert(`Datos del modelo:\nNombre: ${item.nombre}`);
+    alert(`Nombre: ${item.name}\nCategoría: ${item.category}\nEstilo: ${item.style}\nTiempo: ${item.weather}\nGénero: ${item.gender}`);
   }
 
   onEditClick(item: any) {
-    const nuevoNombre = prompt("Editar nombre:", item.nombre);
-    if (nuevoNombre && nuevoNombre !== item.nombre) {
+    const nuevoNombre = prompt("Editar nombre:", item.name);
+    if (nuevoNombre && nuevoNombre !== item.name) {
       this.itemService.updateItem(item.id, { nombre: nuevoNombre }).subscribe(() => {
         this.cargarItems();
       });
@@ -71,17 +147,15 @@ export class ColectionComponent implements OnInit {
   }
 
   toggleEstadoLimpio(item: any) {
-    const nuevoEstado = !item.limpio;
-    
+    const nuevoEstado = !item.clean;
     this.itemService.updateItem(item.id, { limpio: nuevoEstado }).subscribe(() => {
-      item.limpio = nuevoEstado;
-      this.cdr.detectChanges(); 
+      item.clean = nuevoEstado;
+      this.cdr.detectChanges();
     });
   }
 
-
   onCleanAllClick() {
-    if (confirm("¿Estás seguro de que quieres marcar TODAS las prendas como limpias?")) {
+    if (confirm("¿Marcar TODAS las prendas como limpias?")) {
       this.itemService.cleanAllItems().subscribe(() => {
         this.cargarItems();
       });
