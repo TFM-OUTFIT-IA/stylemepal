@@ -1,0 +1,48 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2 class="auth-title">Sign up</h2>
+
+    <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      
+      <div class="input-group">
+        <input 
+          type="text" 
+          id="username" 
+          class="auth-input"
+          formControlName="username" 
+          placeholder="Elige un nombre de usuario"
+        >
+        <small class="validation-error" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid">
+          El usuario debe tener al menos 3 caracteres.
+        </small>
+      </div>
+
+      <div class="input-group">
+        <input 
+          type="password" 
+          id="password" 
+          class="auth-input"
+          formControlName="password" 
+          placeholder="Crea una contraseña"
+        >
+        <small class="validation-error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+          La contraseña debe tener al menos 4 caracteres.
+        </small>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-alert">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="success-alert">
+        {{ successMessage }}
+      </div>
+
+      <button type="submit" class="auth-button" [disabled]="registerForm.invalid || isLoading">
+        {{ isLoading ? 'Creando...' : 'Sign up' }}
+      </button>
+
+    </form>
+
+    <a routerLink="/login" class="auth-link">already have an account? <span style="font-weight: 600;">Log in</span></a>
+  </div>
+</div>

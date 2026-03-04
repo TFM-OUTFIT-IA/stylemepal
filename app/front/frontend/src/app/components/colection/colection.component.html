@@ -1,0 +1,98 @@
+<div class="coleccion-container">
+
+  <div class="toolbar">
+    <div class="tools-left">
+      <button class="icon-btn add-btn" (click)="onAddClick()" title="Añadir prenda">➕</button>
+      <button class="icon-btn folder-btn" (click)="onFolderClick()" title="Subir carpeta">📁</button>
+      <button class="icon-btn" (click)="onCleanAllClick()" title="Marcar todo como limpio">🧺</button>
+    </div>
+    <div class="tools-right">
+      <span class="order-text">Order by: default</span>
+    </div>
+  </div>
+
+  <div class="grid-container">
+    <div class="card" *ngFor="let item of items">
+
+      <div class="status-circle"
+           [ngClass]="{'estado-limpio': item.clean, 'estado-sucio': !item.clean}"
+           (click)="toggleEstadoLimpio(item)"
+           title="Clic para cambiar estado">
+      </div>
+
+      <div class="card-image">
+        <img [src]="getImageUrl(item.image_path)" alt="Imagen de prenda" loading="lazy">
+      </div>
+
+      <div class="card-actions">
+        <button class="action-btn btn-view"   (click)="onViewClick(item)">📄</button>
+        <button class="action-btn btn-edit"   (click)="onEditClick(item)">✏️</button>
+        <button class="action-btn btn-delete" (click)="onDeleteClick(item)">🗑️</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Batch Upload Modal ─────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showBatchModal" (click)="$event.target === $event.currentTarget && closeBatchModal()">
+  <div class="modal-card">
+
+    <h3 class="modal-title">📁 Subir carpeta</h3>
+
+    <!-- File preview list -->
+    <div class="file-list" *ngIf="batchStatus === 'idle'">
+      <p class="file-count">{{ batchFiles.length }} imágenes encontradas</p>
+      <ul>
+        <li *ngFor="let f of batchFiles.slice(0, 8)">{{ f.name }}</li>
+        <li *ngIf="batchFiles.length > 8" class="more-files">
+          ... y {{ batchFiles.length - 8 }} más
+        </li>
+      </ul>
+    </div>
+
+    <!-- Upload progress bar -->
+    <div class="progress-section" *ngIf="batchStatus === 'uploading'">
+      <p class="progress-label">Subiendo... {{ batchProgress }}%</p>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="batchProgress"></div>
+      </div>
+    </div>
+
+    <!-- Processing state -->
+    <div class="result-section" *ngIf="batchStatus === 'processing'">
+      <div class="result-icon">⚙️</div>
+      <p class="result-title">Procesando con IA...</p>
+      <p class="result-msg">{{ batchAccepted }} prendas aceptadas.</p>
+      <p class="result-rejected" *ngIf="batchRejected > 0">
+        {{ batchRejected }} archivos rechazados (no son imágenes válidas).
+      </p>
+      <p class="result-note">El análisis de metadatos se ejecuta en segundo plano. Las prendas aparecerán en tu colección en unos momentos.</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="result-section" *ngIf="batchStatus === 'error'">
+      <div class="result-icon">❌</div>
+      <p class="result-title">Error al subir</p>
+      <p class="result-msg">{{ batchMessage }}</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="modal-actions">
+      <button
+        class="modal-btn btn-upload"
+        *ngIf="batchStatus === 'idle'"
+        (click)="startBatchUpload()">
+        Subir {{ batchFiles.length }} imágenes
+      </button>
+      <button
+        class="modal-btn btn-close"
+        *ngIf="batchStatus !== 'uploading'"
+        (click)="closeBatchModal()">
+        {{ batchStatus === 'processing' ? 'Ver colección' : 'Cancelar' }}
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,120 @@
+<div class="generar-container">
+
+  <div class="outfit-area">
+
+    <!-- Filter Panel -->
+    <div class="filter-panel">
+      <div class="filter-group">
+        <label>Style</label>
+        <div class="pill-group">
+          <button
+            *ngFor="let s of styles"
+            class="pill"
+            [class.active]="selectedStyle === s"
+            (click)="selectedStyle = s">
+            {{ s }}
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Weather</label>
+        <div class="pill-group">
+          <button
+            *ngFor="let w of weathers"
+            class="pill"
+            [class.active]="selectedWeather === w"
+            (click)="selectedWeather = w">
+            {{ w }}
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Gender</label>
+        <div class="pill-group">
+          <button
+            *ngFor="let g of genders"
+            class="pill"
+            [class.active]="selectedGender === g"
+            (click)="selectedGender = g">
+            {{ g }}
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</div>
+    </div>
+
+    <!-- Outfit Slots -->
+    <div class="slots-area">
+      <div class="col col-1">
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[0] }"></ng-container>
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[1] }"></ng-container>
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[2] }"></ng-container>
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[3] }"></ng-container>
+      </div>
+
+      <div class="col col-2">
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[4] }"></ng-container>
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[5] }"></ng-container>
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[6] }"></ng-container>
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[7] }"></ng-container>
+      </div>
+
+      <div class="col col-3">
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[8] }"></ng-container>
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[9] }"></ng-container>
+        <ng-container *ngTemplateOutlet="slotTemplate; context: { cat: slotsLayout[10] }"></ng-container>
+
+        <div class="action-buttons">
+          <button class="btn-generar" (click)="onGenerar()" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Generar 🪄</span>
+            <span *ngIf="isLoading">...</span>
+          </button>
+          <button class="btn-confirmar" (click)="onConfirmar()" [disabled]="isLoading">
+            Confirmar ✔️
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Agent Panel (placeholder) -->
+  <div class="agent-panel">
+    <div class="agent-header">Agente</div>
+    <div class="agent-chatbox"></div>
+    <div class="agent-input"></div>
+  </div>
+
+</div>
+
+<!-- Slot Template -->
+<ng-template #slotTemplate let-cat="cat">
+  <div class="slot-wrapper" [class.is-locked]="locked[cat.id]">
+
+    <div class="slot-controls">
+      <button class="mini-btn btn-random" (click)="onRandomizeSingle(cat.id)" [disabled]="locked[cat.id] || isLoading" title="Cambiar prenda">🔄</button>
+      <button class="mini-btn" [ngClass]="locked[cat.id] ? 'btn-unblock' : 'btn-block'" (click)="toggleLock(cat.id)" title="Bloquear/Desbloquear">
+        {{ locked[cat.id] ? '🔓' : '❌' }}
+      </button>
+    </div>
+
+    <div class="slot-box">
+      <img *ngIf="outfit[cat.id]?.image_path" [src]="outfit[cat.id].image_path" [alt]="cat.id" class="slot-img">
+      <div *ngIf="!outfit[cat.id]" class="slot-placeholder">{{ cat.icon }}</div>
+    </div>
+
+    <!-- Match quality badge -->
+    <div class="match-badge" *ngIf="getMatchInfo(cat.id) as info" [style.color]="info.color">
+      {{ info.label }}
+    </div>
+
+    <!-- Compatibility score -->
+    <div class="compat-score" *ngIf="outfit[cat.id]?.compatibility_score">
+      {{ (outfit[cat.id].compatibility_score * 100).toFixed(0) }}% compat.
+    </div>
+
+  </div>
+</ng-template>

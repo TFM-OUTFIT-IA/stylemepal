@@ -1,0 +1,139 @@
+<div class="landing-container" *ngIf="!isLoading; else loadingTpl">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="landing-header">
+    <div>
+      <h1 class="landing-title">My Wardrobe</h1>
+      <p class="landing-subtitle">{{ totalOutfits }} outfits worn · {{ totalItems }} pieces</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/dashboard/colection" class="header-btn">📦 Collection</a>
+      <a routerLink="/dashboard/outfit" class="header-btn primary">🪄 Generate</a>
+    </div>
+  </div>
+
+  <!-- ── Stats Row ──────────────────────────────────────── -->
+  <div class="stats-row">
+
+    <div class="stat-card">
+      <div class="stat-value">{{ totalItems }}</div>
+      <div class="stat-label">Total pieces</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-value clean">{{ cleanItems }}</div>
+      <div class="stat-label">Clean & ready</div>
+      <div class="stat-bar">
+        <div class="stat-bar-fill clean" [style.width.%]="cleanPct"></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-value dirty">{{ dirtyItems }}</div>
+      <div class="stat-label">In the wash</div>
+      <div class="stat-bar">
+        <div class="stat-bar-fill dirty" [style.width.%]="100 - cleanPct"></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-value accent">{{ totalOutfits }}</div>
+      <div class="stat-label">Outfits worn</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-value accent">{{ mostWornStyle }}</div>
+      <div class="stat-label">Favourite style</div>
+    </div>
+
+  </div>
+
+  <!-- ── Category Breakdown ─────────────────────────────── -->
+  <div class="section" *ngIf="categoryBreakdown.length > 0">
+    <h2 class="section-title">Wardrobe breakdown</h2>
+    <div class="category-list">
+      <div class="category-row" *ngFor="let cat of categoryBreakdown">
+        <span class="cat-label">{{ cat.label }}</span>
+        <div class="cat-bar">
+          <div class="cat-bar-fill" [style.width.%]="cat.pct"></div>
+        </div>
+        <span class="cat-count">{{ cat.count }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Outfit History ─────────────────────────────────── -->
+  <div class="section">
+    <h2 class="section-title">Outfit history</h2>
+
+    <div class="empty-state" *ngIf="outfits.length === 0">
+      <div class="empty-icon">👗</div>
+      <p>No outfits saved yet.</p>
+      <a routerLink="/generar" class="header-btn primary">Generate your first outfit</a>
+    </div>
+
+    <div class="outfits-grid" *ngIf="outfits.length > 0">
+      <div class="outfit-card" *ngFor="let outfit of outfits" (click)="openLightbox(outfit)">
+
+        <!-- Image collage (up to 4 images) -->
+        <div class="outfit-collage" [attr.data-count]="getOutfitImages(outfit).length">
+          <img *ngFor="let img of getOutfitImages(outfit)"
+               [src]="img" alt="outfit item" class="collage-img">
+          <div *ngIf="getOutfitImages(outfit).length === 0" class="collage-empty">👗</div>
+        </div>
+
+        <!-- Card footer -->
+        <div class="outfit-footer">
+          <div class="outfit-tags">
+            <span class="tag">{{ outfit.style }}</span>
+            <span class="tag">{{ outfit.weather }}</span>
+          </div>
+          <div class="outfit-date">{{ formatDate(outfit.worn_at) }}</div>
+        </div>
+
+        <!-- Delete button -->
+        <button class="outfit-delete" (click)="$event.stopPropagation(); deleteOutfit(outfit)" title="Eliminar">✕</button>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Loading ────────────────────────────────────────────── -->
+<ng-template #loadingTpl>
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your wardrobe...</p>
+  </div>
+</ng-template>
+
+<!-- ── Lightbox ───────────────────────────────────────────── -->
+<div class="lightbox-overlay" *ngIf="lightboxOutfit" (click)="closeLightbox()">
+  <div class="lightbox-card" (click)="$event.stopPropagation()">
+
+    <div class="lightbox-header">
+      <div>
+        <h3 class="lightbox-title">{{ lightboxOutfit.style }} · {{ lightboxOutfit.weather }}</h3>
+        <p class="lightbox-date">Worn on {{ formatDate(lightboxOutfit.worn_at) }}</p>
+      </div>
+      <button class="lightbox-close" (click)="closeLightbox()">✕</button>
+    </div>
+
+    <div class="lightbox-items">
+      <div class="lightbox-item" *ngFor="let slot of lightboxOutfit.items_snapshot">
+        <div class="lightbox-img-wrap">
+          <img *ngIf="slot.image_path" [src]="slot.image_path" [alt]="slot.category">
+          <div *ngIf="!slot.image_path" class="lightbox-no-img">—</div>
+        </div>
+        <div class="lightbox-item-info">
+          <span class="lightbox-cat">{{ slot.category }}</span>
+          <span class="lightbox-score" *ngIf="slot.compatibility_score > 0">
+            {{ (slot.compatibility_score * 100).toFixed(0) }}%
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
