@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -24,20 +24,33 @@ export class AuthService {
   }
 
   register(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, userData);
+    return this.http.post(`${this.apiUrl}/register`, userData).pipe(
+      catchError((error) => {
+        console.error('AuthService capturó un error en register:', error);
+        return throwError(() => error); 
+      })
+    );
   }
 
   login(credentials: any): Observable<any> {
-    const formData = new FormData();
-    formData.append('username', credentials.username);
-    formData.append('password', credentials.password);
+    const body = new HttpParams()
+      .set('username', credentials.username)
+      .set('password', credentials.password);
 
-    return this.http.post(`${this.apiUrl}/login`, formData).pipe(
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    return this.http.post(`${this.apiUrl}/login`, body.toString(), { headers }).pipe(
       tap((res: any) => {
         if (typeof window !== 'undefined') {
           localStorage.setItem('token', res.access_token);
         }
         this.loggedIn.next(true);
+      }),
+      catchError((error) => {
+        console.error('AuthService capturó un error:', error);
+        return throwError(() => error); 
       })
     );
   }

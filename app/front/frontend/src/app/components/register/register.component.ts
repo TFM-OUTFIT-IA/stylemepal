@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+// 1. Importa ChangeDetectorRef
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -7,7 +8,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule], // <-- ¡Añadido aquí!
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
@@ -20,18 +21,30 @@ export class RegisterComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef 
   ) {}
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      password: ['', [Validators.required, Validators.minLength(4)]]
+      username: ['', [
+        Validators.required, 
+        Validators.minLength(3),
+        Validators.maxLength(30),
+        Validators.pattern(/^[A-Za-z0-9_\-]+$/)
+      ]],
+      password: ['', [
+        Validators.required, 
+        Validators.minLength(8),
+        Validators.maxLength(72),
+        Validators.pattern(/^(?=.*[a-zA-Z])(?=.*\d).+$/)
+      ]]
     });
   }
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched(); 
       return;
     }
 
@@ -39,11 +52,16 @@ export class RegisterComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    const formData = {
+      username: this.registerForm.value.username.trim(),
+      password: this.registerForm.value.password
+    };
 
-    this.authService.register(this.registerForm.value).subscribe({
+    this.authService.register(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.successMessage = '¡Cuenta creada con éxito! Redirigiendo al login...';
+        this.cdr.detectChanges(); // Repintamos también en el éxito por si acaso
         
         setTimeout(() => {
           this.router.navigate(['/login']);
@@ -51,12 +69,20 @@ export class RegisterComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        // FastAPI devuelve un error 400 si el usuario ya existe
+        
+        console.error('Error crudo recibido en el componente:', err); 
+
         if (err.status === 400) {
-          this.errorMessage = 'Ese nombre de usuario ya está registrado. Elige otro.';
+          this.errorMessage = 'Ese nombre de usuario ya está registrado.';
+        } else if (err.status === 422) {
+          this.errorMessage = 'Los datos enviados no cumplen con el formato requerido.';
+        } else if (err.error && err.error.detail) {
+          this.errorMessage = err.error.detail;
         } else {
-          this.errorMessage = 'Error al conectar con el servidor.';
+          this.errorMessage = 'No se pudo registrar.';
         }
+        
+        this.cdr.detectChanges();
       }
     });
   }
