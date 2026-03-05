@@ -10,11 +10,22 @@
           id="username" 
           class="auth-input"
           formControlName="username" 
-          placeholder="Elige un nombre de usuario"
+          placeholder="Choose a username"
         >
-        <small class="validation-error" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid">
-          El usuario debe tener al menos 3 caracteres.
-        </small>
+        <div *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid">
+          <small class="validation-error" *ngIf="registerForm.get('username')?.hasError('required')">
+            Username is required.
+          </small>
+          <small class="validation-error" *ngIf="registerForm.get('username')?.hasError('minlength')">
+            At least 3 characters.
+          </small>
+          <small class="validation-error" *ngIf="registerForm.get('username')?.hasError('maxlength')">
+            Not more than 20 characters.
+          </small>
+          <small class="validation-error" *ngIf="registerForm.get('username')?.hasError('pattern')">
+            Only letters, numbers, hyphens (-) and underscores (_).
+          </small>
+        </div>
       </div>
 
       <div class="input-group">
@@ -23,11 +34,22 @@
           id="password" 
           class="auth-input"
           formControlName="password" 
-          placeholder="Crea una contraseña"
+          placeholder="Create a password"
         >
-        <small class="validation-error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
-          La contraseña debe tener al menos 4 caracteres.
-        </small>
+        <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+          <small class="validation-error" *ngIf="registerForm.get('password')?.hasError('required')">
+            Password is required.
+          </small>
+          <small class="validation-error" *ngIf="registerForm.get('password')?.hasError('minlength')">
+            At least 8 characters.
+          </small>
+          <small class="validation-error" *ngIf="registerForm.get('password')?.hasError('maxlength')">
+            Not more than 72 characters.
+          </small>
+          <small class="validation-error" *ngIf="registerForm.get('password')?.hasError('pattern')">
+            At least 1 letter and 1 number.
+          </small>
+        </div>
       </div>
 
       <div *ngIf="errorMessage" class="error-alert">
@@ -38,7 +60,7 @@
       </div>
 
       <button type="submit" class="auth-button" [disabled]="registerForm.invalid || isLoading">
-        {{ isLoading ? 'Creando...' : 'Sign up' }}
+        {{ isLoading ? 'Creating...' : 'Sign up' }}
       </button>
 
     </form>
