@@ -3,9 +3,9 @@ import uuid
 import aiofiles
 import random
 import logging
-from typing import Annotated, List, Dict, Any
+from typing import Annotated, List, Dict, Any, Optional
 from PIL import Image, UnidentifiedImageError
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException, Depends, Request, Form
+from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException, Depends, Request, Form, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from ..db.database import get_db, SessionLocal
@@ -250,6 +250,8 @@ async def get_recommendation(
     weather: str,
     gender: str,
     request: Request,
+    anchor_id: Optional[str] = None,            
+    exclude_ids: List[str] = Query(default=[]),     
     current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> RecommendationResponse:
@@ -271,37 +273,44 @@ async def get_recommendation(
     }
     GENDER_FB = ["Unisex"] if gender != "Unisex" else []
 
-    all_styles   = [style]   + STYLE_FB.get(style, [])
-    all_weathers = [weather] + WEATHER_FB.get(weather, [])
-    all_genders  = [gender]  + GENDER_FB
 
-    # Same priority order as the recommender: style first, weather second, gender last
-    anchors = []
-    for s in all_styles:
-        for w in all_weathers:
-            for g in all_genders:
-                anchors = db.query(ItemDB).filter(
-                    ItemDB.user_id == current_user.id,
-                    ItemDB.compat_embedding.is_not(None),
-                    ItemDB.clean == True,
-                    ItemDB.style == s,
-                    ItemDB.weather == w,
-                    ItemDB.gender == g,
-                ).all()
+    if anchor_id:
+        anchor = db.query(ItemDB).filter(ItemDB.id == anchor_id, ItemDB.user_id == current_user.id).first()
+        if not anchor:
+            raise HTTPException(status_code=404, detail="Prenda ancla no encontrada")
+    else:
+
+        all_styles   = [style]   + STYLE_FB.get(style, [])
+        all_weathers = [weather] + WEATHER_FB.get(weather, [])
+        all_genders  = [gender]  + GENDER_FB
+
+
+        anchors = []
+        for s in all_styles:
+            for w in all_weathers:
+                for g in all_genders:
+                    anchors = db.query(ItemDB).filter(
+                        ItemDB.user_id == current_user.id,
+                        ItemDB.compat_embedding.is_not(None),
+                        ItemDB.clean == True,
+                        ItemDB.style == s,
+                        ItemDB.weather == w,
+                        ItemDB.gender == g,
+                    ).all()
+                    if anchors:
+                        break
                 if anchors:
                     break
             if anchors:
                 break
-        if anchors:
-            break
 
-    if not anchors:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No clean items found matching style '{style}' and gender '{gender}'. Try different filters or add more items."
-        )
+        if not anchors:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No clean items found matching style '{style}' and gender '{gender}'. Try different filters or add more items."
+            )
 
-    anchor = random.choice(anchors)
+        anchor = random.choice(anchors)
 
     recommender = getattr(request.app.state, "services", {}).get("recommender")
     if recommender is None:
@@ -314,6 +323,7 @@ async def get_recommendation(
             anchor_item=anchor,
             filters={"style": style, "weather": weather, "gender": gender},
             user_id=current_user.id,
+            exclude_ids=exclude_ids  
         )
     except Exception:
         logger.exception("Recommender failed")

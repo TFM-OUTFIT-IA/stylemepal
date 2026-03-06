@@ -76,63 +76,82 @@ export class OutfitComponent implements OnInit {
     return matchLabel(item.match_quality);
   }
 
-  onGenerar() {
+  onGenerar(anchorId?: string, excludeIds?: string[], onlySlotId?: string) {
     this.isLoading = true;
     this.errorMessage = '';
 
     this.itemService.getRecommendation(
       this.selectedStyle,
       this.selectedWeather,
-      this.selectedGender
+      this.selectedGender,
+      anchorId,    
+      excludeIds   
     ).subscribe({
       next: (response: any) => {
         this.isLoading = false;
         this.timestamp = Date.now();
 
-        const newOutfit: Record<string, any> = {};
-        this.slotsLayout.forEach(s => {
-          newOutfit[s.id] = this.locked[s.id] ? this.outfit[s.id] : null;
-        });
+        // Partimos del outfit actual en lugar de uno vacío
+        const newOutfit: Record<string, any> = { ...this.outfit };
 
-        const anchorSlotId = this.categoryToSlot(response.anchor_category);
-        if (anchorSlotId && !this.locked[anchorSlotId]) {
-          newOutfit[anchorSlotId] = {
-            id: response.anchor_item_id,
-            image_path: response.anchor_image_path,
-            category: response.anchor_category,
-            compatibility_score: 1.0,
-            match_quality: 'exact',
-          };
-        }
-
-        response.outfit.forEach((item: any) => {
-          const slotId = this.categoryToSlot(item.category);
-          if (slotId && !this.locked[slotId]) {
-            newOutfit[slotId] = item.item_id ? {
-              id: item.item_id,
-              image_path: item.image_path,
-              category: item.category,
-              compatibility_score: item.compatibility_score,
-              match_quality: item.match_quality,
-            } : null;
+        if (onlySlotId) {
+          // --- MODO: CAMBIAR SOLO UNA PRENDA ---
+          const slotCategory = this.slotsLayout.find(s => s.id === onlySlotId)?.category;
+          const itemUpdate = response.outfit.find((item: any) => item.category === slotCategory);
+          
+          if (itemUpdate && itemUpdate.item_id) {
+            newOutfit[onlySlotId] = {
+              id: itemUpdate.item_id,
+              image_path: itemUpdate.image_path,
+              category: itemUpdate.category,
+              compatibility_score: itemUpdate.compatibility_score,
+              match_quality: itemUpdate.match_quality,
+            };
           }
-        });
+        } else {
+          // --- MODO: GENERAR TODO EL OUTFIT ---
+          this.slotsLayout.forEach(s => {
+            // Mantenemos solo lo que estuviera bloqueado (no debería haber nada, pero por si acaso)
+            newOutfit[s.id] = this.locked[s.id] ? this.outfit[s.id] : null;
+          });
+
+          const anchorSlotId = this.categoryToSlot(response.anchor_category);
+          if (anchorSlotId && !this.locked[anchorSlotId]) {
+            newOutfit[anchorSlotId] = {
+              id: response.anchor_item_id,
+              image_path: response.anchor_image_path,
+              category: response.anchor_category,
+              compatibility_score: 1.0,
+              match_quality: 'exact',
+            };
+          }
+
+          response.outfit.forEach((item: any) => {
+            const slotId = this.categoryToSlot(item.category);
+            if (slotId && !this.locked[slotId]) {
+              newOutfit[slotId] = item.item_id ? {
+                id: item.item_id,
+                image_path: item.image_path,
+                category: item.category,
+                compatibility_score: item.compatibility_score,
+                match_quality: item.match_quality,
+              } : null;
+            }
+          });
+        }
 
         this.outfit = newOutfit;
         this.cdr.detectChanges(); 
       },
       error: (err) => {
         this.isLoading = false;
-        
         if (err.status === 404) {
-          this.errorMessage = /* err.error?.detail || */ 'No tienes prendas limpias para este estilo. ¡Toca hacer la colada o probar otro estilo!';
+          this.errorMessage = 'No tienes prendas limpias para este estilo. ¡Toca hacer la colada o probar otro estilo!';
         } else if (err.status === 503) {
           this.errorMessage = 'El motor de recomendación no está disponible.';
         } else {
           this.errorMessage = 'Error al generar el outfit. Inténtalo de nuevo.';
         }
-        
-
         this.cdr.detectChanges(); 
       }
     });
@@ -140,19 +159,30 @@ export class OutfitComponent implements OnInit {
 
   onRandomizeSingle(slotId: string) {
     if (this.locked[slotId]) return;
-    // Re-generate while keeping all other slots locked
-    const prevLocked = { ...this.locked };
-    this.slotsLayout.forEach(s => {
-      if (s.id !== slotId) this.locked[s.id] = true;
-    });
-    this.onGenerar();
-    // Restore lock state after call
-    this.locked = prevLocked;
-    this.locked[slotId] = false;
+
+    let excludeIds: string[] = [];
+    const currentItem = this.outfit[slotId];
+    if (currentItem && currentItem.id) {
+      excludeIds.push(currentItem.id);
+    }
+
+    let anchorId: string | undefined = undefined;
+    for (const s of this.slotsLayout) {
+      if (s.id !== slotId && this.outfit[s.id]?.id) {
+        anchorId = this.outfit[s.id].id;
+        break; 
+      }
+    }
+
+    this.onGenerar(anchorId, excludeIds, slotId);
   }
 
   toggleLock(slotId: string) {
     this.locked[slotId] = !this.locked[slotId];
+    
+    if (this.locked[slotId]) {
+      this.outfit[slotId] = null;
+    }
   }
 
   onConfirmar() {
