@@ -117,7 +117,19 @@
         <h3 class="lightbox-title">{{ lightboxOutfit.style }} · {{ lightboxOutfit.weather }}</h3>
         <p class="lightbox-date">Worn on {{ formatDate(lightboxOutfit.worn_at) }}</p>
       </div>
-      <button class="lightbox-close" (click)="closeLightbox()">✕</button>
+      
+      <div class="lightbox-actions">
+        <button 
+          class="header-btn primary" 
+          (click)="cleanOutfitItems()" 
+          [disabled]="isCleaning"
+          title="Marcar todas estas prendas como limpias">
+          <span *ngIf="!isCleaning">🧺 Clean Outfit</span>
+          <span *ngIf="isCleaning">...</span>
+        </button>
+        <button class="lightbox-close" (click)="closeLightbox()">✕</button>
+      </div>
+
     </div>
 
     <div class="lightbox-items">
@@ -136,4 +148,23 @@
     </div>
 
   </div>
+</div>
+
+<div class="lightbox-overlay" *ngIf="outfitToDelete" (click)="cancelDelete()">
+  
+  <div class="lightbox-card lightbox-card-sm" (click)="$event.stopPropagation()">
+    <div class="delete-icon">🗑️</div>
+    <h3 class="lightbox-title delete-title">Eliminar Outfit</h3>
+    
+    <p class="delete-text">
+      ¿Estás seguro de que deseas eliminar este outfit de tu historial? <br>
+      Esta acción no se puede deshacer.
+    </p>
+
+    <div class="lightbox-actions actions-center">
+      <button class="header-btn" (click)="cancelDelete()">Cancelar</button>
+      <button class="header-btn btn-danger" (click)="confirmDelete()">Sí, Eliminar</button>
+    </div>
+  </div>
+
 </div>

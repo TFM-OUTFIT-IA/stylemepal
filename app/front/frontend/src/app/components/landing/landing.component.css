@@ -260,3 +260,30 @@
 .lightbox-item-info { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .lightbox-cat   { font-size: 11px; color: #a0a0a0; text-transform: capitalize; }
 .lightbox-score { font-size: 10px; color: #4caf50; font-weight: 600; }
+
+/* ── Estilos específicos para el Modal de Borrado ── */
+
+.lightbox-card-sm {
+  max-width: 400px;
+  text-align: center;
+}
+
+.delete-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.delete-title {
+  margin-bottom: 15px;
+}
+
+.delete-text {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.actions-center {
+  justify-content: center;
+}

@@ -7,7 +7,12 @@
       <button class="icon-btn" (click)="onCleanAllClick()" title="Marcar todo como limpio">🧺</button>
     </div>
     <div class="tools-right">
-      <span class="order-text">Order by: default</span>
+      <select class="order-select" [(ngModel)]="currentSort" (change)="sortItems()">
+        <option value="default">Por defecto</option>
+        <option value="category">Por Categoría (Tops, zapatos...)</option>
+        <option value="dirty">Por Estado (Sucio/Limpio)</option>
+        <option value="style">Por Estilo</option>
+      </select>
     </div>
   </div>
 
@@ -94,5 +99,62 @@
       </button>
     </div>
 
+    
   </div>
 </div>
+
+<div class="modal-overlay" *ngIf="modalType !== 'none'" (click)="$event.target === $event.currentTarget && closeItemModal()">
+      <div class="modal-card">
+
+        <ng-container *ngIf="modalType === 'view'">
+          <h3 class="modal-title">📄 Detalles de la Prenda</h3>
+          
+          <div class="item-details-image">
+            <img [src]="getImageUrl(selectedItem?.image_path)" alt="Prenda">
+          </div>
+
+          <div class="item-details-text">
+            <p><strong>Nombre:</strong> {{ selectedItem?.name }}</p>
+            <p><strong>Categoría:</strong> <span class="badge">{{ selectedItem?.category }}</span></p>
+            <p><strong>Estilo:</strong> <span class="badge">{{ selectedItem?.style }}</span></p>
+            <p><strong>Clima:</strong> <span class="badge">{{ selectedItem?.weather }}</span></p>
+            <p><strong>Género:</strong> <span class="badge">{{ selectedItem?.gender }}</span></p>
+          </div>
+          
+          <div class="modal-actions">
+            <button class="modal-btn btn-close" (click)="closeItemModal()">Cerrar</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="modalType === 'edit'">
+          <h3 class="modal-title">✏️ Editar Prenda</h3>
+          <div class="edit-form">
+            <label>Nombre de la prenda:</label>
+            <input 
+              type="text" 
+              class="edit-input" 
+              [(ngModel)]="editNameInput" 
+              (keyup.enter)="confirmEdit()"
+              placeholder="Ej: Camisa vaquera azul"
+            >
+          </div>
+          <div class="modal-actions">
+            <button class="modal-btn btn-close" (click)="closeItemModal()">Cancelar</button>
+            <button class="modal-btn btn-upload" (click)="confirmEdit()">Guardar Cambios</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="modalType === 'delete'">
+          <h3 class="modal-title" style="color: #f44336;">🗑️ Eliminar Prenda</h3>
+          <p style="color: #ccc; font-size: 14px; line-height: 1.5;">
+            ¿Estás seguro de que deseas eliminar <strong>{{ selectedItem?.name }}</strong>? <br>
+            Esta acción eliminará la prenda de tu armario digital y no se puede deshacer.
+          </p>
+          <div class="modal-actions">
+            <button class="modal-btn btn-close" (click)="closeItemModal()">Cancelar</button>
+            <button class="modal-btn btn-danger" (click)="confirmDelete()">Sí, Eliminar</button>
+          </div>
+        </ng-container>
+
+      </div>
+    </div>
