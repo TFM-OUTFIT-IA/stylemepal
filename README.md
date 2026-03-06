@@ -1,6 +1,6 @@
 <h1 align="center">StyleMePal AI 🧥 - Tu asistente personal de armario virtual y generación de outfits</h1>
 
-<img src="https://drive.google.com/uc?export=view&id=1Vcb--qa_OF1GnT2Izk4mvg9i7-vp9TKP">
+<img src="https://drive.google.com/uc?export=view&id=1P4ihOmcwySQ95iKhIYFzTZu6YV5hGNUC">
 
 **StyleMePal AI** es un proyecto innovador de Inteligencia Artificial enfocado en la moda. Esta aplicación resuelve el problema de "Cold Start" en la compatibilidad de moda permitiendo a los usuarios digitalizar su propio armario y generar *outfits* dinámicos basados en preferencias de estilo, condiciones climáticas y reglas taxonómicas.
 
