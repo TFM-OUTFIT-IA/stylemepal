@@ -1,17 +1,21 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpEventType } from '@angular/common/http';
 import { ItemService } from '../../services/item.service';
 
 @Component({
   selector: 'app-coleccion',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './colection.component.html',
   styleUrls: ['./colection.component.css']
 })
 export class ColectionComponent implements OnInit {
   items: any[] = [];
+  modalType: 'none' | 'view' | 'edit' | 'delete' = 'none';
+  selectedItem: any = null;
+  editNameInput: string = '';
 
 
   showBatchModal = false;
@@ -125,25 +129,48 @@ export class ColectionComponent implements OnInit {
     this.batchStatus = 'idle';
   }
   
-  onViewClick(item: any) {
-    alert(`Nombre: ${item.name}\nCategoría: ${item.category}\nEstilo: ${item.style}\nTiempo: ${item.weather}\nGénero: ${item.gender}`);
+onViewClick(item: any) {
+    this.selectedItem = item;
+    this.modalType = 'view';
+    this.cdr.detectChanges(); // <-- Obligamos a Angular a mostrar el modal
   }
 
   onEditClick(item: any) {
-    const nuevoNombre = prompt("Editar nombre:", item.name);
-    if (nuevoNombre && nuevoNombre !== item.name) {
-      this.itemService.updateItem(item.id, { nombre: nuevoNombre }).subscribe(() => {
+    this.selectedItem = item;
+    this.editNameInput = item.name;
+    this.modalType = 'edit';
+    this.cdr.detectChanges(); // <-- Obligamos a Angular a mostrar el modal
+  }
+
+  confirmEdit() {
+    if (this.editNameInput && this.editNameInput !== this.selectedItem.name) {
+      this.itemService.updateItem(this.selectedItem.id, { nombre: this.editNameInput }).subscribe(() => {
         this.cargarItems();
+        this.closeItemModal();
       });
+    } else {
+      this.closeItemModal();
     }
   }
 
   onDeleteClick(item: any) {
-    if (confirm("¿Estás seguro de que deseas eliminar este elemento?")) {
-      this.itemService.deleteItem(item.id).subscribe(() => {
-        this.cargarItems();
-      });
-    }
+    this.selectedItem = item;
+    this.modalType = 'delete';
+    this.cdr.detectChanges(); // <-- Obligamos a Angular a mostrar el modal
+  }
+
+  confirmDelete() {
+    this.itemService.deleteItem(this.selectedItem.id).subscribe(() => {
+      this.cargarItems();
+      this.closeItemModal();
+    });
+  }
+
+  closeItemModal() {
+    this.modalType = 'none';
+    this.selectedItem = null;
+    this.editNameInput = '';
+    this.cdr.detectChanges(); // <-- Obligamos a Angular a ocultar el modal
   }
 
   toggleEstadoLimpio(item: any) {
