@@ -10,6 +10,7 @@ from ..db.database import engine, Base
 from .auth import auth_router
 from .items import items_router
 from .outfits import outfits_router
+from .agent import agent_router
 from ..services.inference import InferenceEngine
 from ..services.recommender import OutfitRecommender
 
@@ -69,3 +70,4 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(items_router, prefix="/api/v1")
 app.include_router(outfits_router, prefix="/api/v1")
+app.include_router(agent_router, prefix="/api/v1")

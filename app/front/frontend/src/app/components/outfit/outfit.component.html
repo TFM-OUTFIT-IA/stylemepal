@@ -83,9 +83,37 @@
 
   <!-- Agent Panel (placeholder) -->
   <div class="agent-panel">
-    <div class="agent-header">Agente</div>
-    <div class="agent-chatbox"></div>
-    <div class="agent-input"></div>
+    <div class="agent-header">
+      <span class="agent-avatar">🤖</span> Asistente StyleMe
+    </div>
+    
+    <div class="agent-chatbox" #chatScroll>
+      <div class="message agent-msg">
+        ¡Hola! Dime a dónde vas, cuándo y qué tipo de evento es, y te prepararé el conjunto ideal.
+      </div>
+
+      <div *ngFor="let msg of chatHistory" [ngClass]="msg.role === 'user' ? 'message user-msg' : 'message agent-msg'">
+        {{ msg.content }}
+      </div>
+
+      <div class="message agent-msg typing-indicator" *ngIf="isAgentTyping">
+        Escribiendo...
+      </div>
+    </div>
+
+    <div class="agent-input-area">
+      <input 
+        type="text" 
+        class="chat-input" 
+        [(ngModel)]="userMessage" 
+        (keyup.enter)="sendMessage()"
+        placeholder="Ej: Mañana tengo una cena de empresa en Málaga..."
+        [disabled]="isAgentTyping"
+      >
+      <button class="send-btn" (click)="sendMessage()" [disabled]="!userMessage.trim() || isAgentTyping">
+        ➤
+      </button>
+    </div>
   </div>
 
 </div>

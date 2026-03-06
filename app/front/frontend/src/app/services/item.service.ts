@@ -50,4 +50,8 @@ export class ItemService {
       observe: 'events',
     });
   }
+
+  askAgent(prompt: string): Observable<any> {
+    return this.http.post<any>('/api/v1/agent/generate', { prompt });
+  }
 }
