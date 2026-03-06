@@ -16,6 +16,7 @@ export class ColectionComponent implements OnInit {
   modalType: 'none' | 'view' | 'edit' | 'delete' = 'none';
   selectedItem: any = null;
   editNameInput: string = '';
+  currentSort: string = 'default'; 
 
 
   showBatchModal = false;
@@ -35,8 +36,26 @@ export class ColectionComponent implements OnInit {
   cargarItems() {
     this.itemService.getItems().subscribe((data) => {
       this.items = data;
+      this.sortItems(); 
       this.cdr.detectChanges();
     });
+  }
+
+  sortItems() {
+    if (this.currentSort === 'category') {
+      this.items.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+    } 
+    else if (this.currentSort === 'dirty') {
+      this.items.sort((a, b) => (a.clean === b.clean ? 0 : a.clean ? 1 : -1));
+    }
+    else if (this.currentSort === 'style') {
+      this.items.sort((a, b) => (a.style || '').localeCompare(b.style || ''));
+    } 
+    else if (this.currentSort === 'default') {
+      this.items.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+    }
+    
+    this.cdr.detectChanges();
   }
 
   getImageUrl(imagePath: string): string {

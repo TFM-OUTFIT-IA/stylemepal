@@ -7,7 +7,12 @@
       <button class="icon-btn" (click)="onCleanAllClick()" title="Marcar todo como limpio">🧺</button>
     </div>
     <div class="tools-right">
-      <span class="order-text">Order by: default</span>
+      <select class="order-select" [(ngModel)]="currentSort" (change)="sortItems()">
+        <option value="default">Por defecto</option>
+        <option value="category">Por Categoría (Tops, zapatos...)</option>
+        <option value="dirty">Por Estado (Sucio/Limpio)</option>
+        <option value="style">Por Estilo</option>
+      </select>
     </div>
   </div>
 
