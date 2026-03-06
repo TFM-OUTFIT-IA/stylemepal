@@ -146,11 +146,11 @@ export class OutfitComponent implements OnInit {
       error: (err) => {
         this.isLoading = false;
         if (err.status === 404) {
-          this.errorMessage = 'No tienes prendas limpias para este estilo. ¡Toca hacer la colada o probar otro estilo!';
+          this.errorMessage = 'You don\'t have any clean clothes for this style. Time to do laundry or try a different style!';
         } else if (err.status === 503) {
-          this.errorMessage = 'El motor de recomendación no está disponible.';
+          this.errorMessage = 'The recommendation engine is not available.';
         } else {
-          this.errorMessage = 'Error al generar el outfit. Inténtalo de nuevo.';
+          this.errorMessage = 'Error generating the outfit. Please try again.';
         }
         this.cdr.detectChanges(); 
       }
@@ -205,7 +205,7 @@ export class OutfitComponent implements OnInit {
     }
 
     if (snapshot.length === 0) {
-      alert('No hay prendas seleccionadas para confirmar.');
+      alert('No items selected to confirm.');
       return;
     }
 
@@ -228,7 +228,7 @@ export class OutfitComponent implements OnInit {
         this.outfit = cleared;
         this.cdr.detectChanges();
       },
-      error: () => alert('Error al guardar el outfit.')
+      error: () => alert('Error saving the outfit.')
     });
   }
 
@@ -281,7 +281,7 @@ export class OutfitComponent implements OnInit {
       },
       error: (err) => {
         this.isAgentTyping = false;
-        this.chatHistory.push({ role: 'agent', content: 'Lo siento, ha habido un error.' });
+        this.chatHistory.push({ role: 'agent', content: 'Sorry, an error occurred.' });
       }
     });
   }

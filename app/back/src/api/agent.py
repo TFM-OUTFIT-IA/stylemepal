@@ -13,22 +13,20 @@ logger = logging.getLogger(__name__)
 agent_router = APIRouter(prefix="/agent", tags=["AI Agent"])
 
 
-GROQ_API_KEY = "gsk_tu_clave_larga_aqui..." # RECUERDA PONER TU CLAVE
 groq_client = Groq(api_key=settings.GROQ_API_KEY)
 MODELO_GROQ = "llama-3.3-70b-versatile"
 
-#TODO: el dia debe cambiar segun la fecha actual
 @agent_router.post("/generate", response_model=AgentResponse)
 def ask_agent(request: AgentRequest, current_user: UserDB = Depends(get_current_user)):
     fecha_actual = datetime.now().strftime("%Y-%m-%d")
 
-    system_prompt = f"""Eres un asistente experto en moda. El usuario te dará un plan o evento.
-    Tu tarea es extraer datos y responder ESTRICTAMENTE con un objeto JSON válido (sin texto antes ni después) con estas claves:
-    - "ciudad": nombre de la ciudad
-    - "fecha": la fecha calculada en formato YYYY-MM-DD (ten en cuenta que HOY es {fecha_actual})
-    - "estilo": elige según el que más se adecua al plan ESTRICTAMENTE uno de: ["Casual", "Formal", "Streetwear", "Bohemian", "Sporty", "Elegant", "Vintage", "Minimalist"]
-    - "clima": deduce el clima típico de esa ciudad en esa fecha y elige ESTRICTAMENTE uno de: ["Summer", "Winter", "Transitional"]
-    - "mensaje_respuesta": Un mensaje amigable de 1 o 2 líneas dirigido al usuario, confirmando el plan, la ciudad y el estilo que vas a buscar.
+    system_prompt = f"""You are an expert fashion assistant. The user will give you a plan or event.
+    Your task is to extract data and reply STRICTLY with a valid JSON object (no text before or after) containing these exact keys:
+    - "ciudad": the name of the city.
+    - "fecha": the calculated date in YYYY-MM-DD format (keep in mind that TODAY is {fecha_actual}).
+    - "estilo": choose the style that best fits the plan, STRICTLY one of: ["Casual", "Formal", "Streetwear", "Bohemian", "Sporty", "Elegant", "Vintage", "Minimalist"].
+    - "clima": deduce the typical weather for that city on that date and STRICTLY choose one of: ["Summer", "Winter", "Transitional"].
+    - "mensaje_respuesta": A friendly 1 or 2-line message written in English, addressed to the user, confirming the plan, the city, and the style you are going to look for.
     """
 
     try:

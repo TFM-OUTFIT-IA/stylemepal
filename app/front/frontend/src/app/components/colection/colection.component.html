@@ -8,10 +8,10 @@
     </div>
     <div class="tools-right">
       <select class="order-select" [(ngModel)]="currentSort" (change)="sortItems()">
-        <option value="default">Por defecto</option>
-        <option value="category">Por Categoría (Tops, zapatos...)</option>
-        <option value="dirty">Por Estado (Sucio/Limpio)</option>
-        <option value="style">Por Estilo</option>
+        <option value="default">Default</option>
+        <option value="category">By Category (Tops, Shoes...)</option>
+        <option value="dirty">By State (Dirty/Clean)</option>
+        <option value="style">By Style</option>
       </select>
     </div>
   </div>
@@ -44,22 +44,22 @@
 <div class="modal-overlay" *ngIf="showBatchModal" (click)="$event.target === $event.currentTarget && closeBatchModal()">
   <div class="modal-card">
 
-    <h3 class="modal-title">📁 Subir carpeta</h3>
+    <h3 class="modal-title">📁 Upload Folder</h3>
 
     <!-- File preview list -->
     <div class="file-list" *ngIf="batchStatus === 'idle'">
-      <p class="file-count">{{ batchFiles.length }} imágenes encontradas</p>
+      <p class="file-count">{{ batchFiles.length }} images found</p>
       <ul>
         <li *ngFor="let f of batchFiles.slice(0, 8)">{{ f.name }}</li>
         <li *ngIf="batchFiles.length > 8" class="more-files">
-          ... y {{ batchFiles.length - 8 }} más
+          ... and {{ batchFiles.length - 8 }} more
         </li>
       </ul>
     </div>
 
     <!-- Upload progress bar -->
     <div class="progress-section" *ngIf="batchStatus === 'uploading'">
-      <p class="progress-label">Subiendo... {{ batchProgress }}%</p>
+      <p class="progress-label">Uploading... {{ batchProgress }}%</p>
       <div class="progress-bar">
         <div class="progress-fill" [style.width.%]="batchProgress"></div>
       </div>
@@ -68,18 +68,18 @@
     <!-- Processing state -->
     <div class="result-section" *ngIf="batchStatus === 'processing'">
       <div class="result-icon">⚙️</div>
-      <p class="result-title">Procesando con IA...</p>
-      <p class="result-msg">{{ batchAccepted }} prendas aceptadas.</p>
+      <p class="result-title">Processing with AI...</p>
+      <p class="result-msg">{{ batchAccepted }} items accepted.</p>
       <p class="result-rejected" *ngIf="batchRejected > 0">
-        {{ batchRejected }} archivos rechazados (no son imágenes válidas).
+        {{ batchRejected }} files rejected (not valid images).
       </p>
-      <p class="result-note">El análisis de metadatos se ejecuta en segundo plano. Las prendas aparecerán en tu colección en unos momentos.</p>
+      <p class="result-note">Metadata analysis runs in the background. The garments will appear in your collection shortly.</p>
     </div>
 
     <!-- Error state -->
     <div class="result-section" *ngIf="batchStatus === 'error'">
       <div class="result-icon">❌</div>
-      <p class="result-title">Error al subir</p>
+      <p class="result-title">Error uploading files</p>
       <p class="result-msg">{{ batchMessage }}</p>
     </div>
 
@@ -89,13 +89,13 @@
         class="modal-btn btn-upload"
         *ngIf="batchStatus === 'idle'"
         (click)="startBatchUpload()">
-        Subir {{ batchFiles.length }} imágenes
+        Upload {{ batchFiles.length }} images
       </button>
       <button
         class="modal-btn btn-close"
         *ngIf="batchStatus !== 'uploading'"
         (click)="closeBatchModal()">
-        {{ batchStatus === 'processing' ? 'Ver colección' : 'Cancelar' }}
+        {{ batchStatus === 'processing' ? 'View Collection' : 'Cancel' }}
       </button>
     </div>
 
@@ -104,57 +104,83 @@
 </div>
 
 <div class="modal-overlay" *ngIf="modalType !== 'none'" (click)="$event.target === $event.currentTarget && closeItemModal()">
-      <div class="modal-card">
+  <div class="modal-card">
 
-        <ng-container *ngIf="modalType === 'view'">
-          <h3 class="modal-title">📄 Detalles de la Prenda</h3>
-          
-          <div class="item-details-image">
-            <img [src]="getImageUrl(selectedItem?.image_path)" alt="Prenda">
-          </div>
-
-          <div class="item-details-text">
-            <p><strong>Nombre:</strong> {{ selectedItem?.name }}</p>
-            <p><strong>Categoría:</strong> <span class="badge">{{ selectedItem?.category }}</span></p>
-            <p><strong>Estilo:</strong> <span class="badge">{{ selectedItem?.style }}</span></p>
-            <p><strong>Clima:</strong> <span class="badge">{{ selectedItem?.weather }}</span></p>
-            <p><strong>Género:</strong> <span class="badge">{{ selectedItem?.gender }}</span></p>
-          </div>
-          
-          <div class="modal-actions">
-            <button class="modal-btn btn-close" (click)="closeItemModal()">Cerrar</button>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="modalType === 'edit'">
-          <h3 class="modal-title">✏️ Editar Prenda</h3>
-          <div class="edit-form">
-            <label>Nombre de la prenda:</label>
-            <input 
-              type="text" 
-              class="edit-input" 
-              [(ngModel)]="editNameInput" 
-              (keyup.enter)="confirmEdit()"
-              placeholder="Ej: Camisa vaquera azul"
-            >
-          </div>
-          <div class="modal-actions">
-            <button class="modal-btn btn-close" (click)="closeItemModal()">Cancelar</button>
-            <button class="modal-btn btn-upload" (click)="confirmEdit()">Guardar Cambios</button>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="modalType === 'delete'">
-          <h3 class="modal-title" style="color: #f44336;">🗑️ Eliminar Prenda</h3>
-          <p style="color: #ccc; font-size: 14px; line-height: 1.5;">
-            ¿Estás seguro de que deseas eliminar <strong>{{ selectedItem?.name }}</strong>? <br>
-            Esta acción eliminará la prenda de tu armario digital y no se puede deshacer.
-          </p>
-          <div class="modal-actions">
-            <button class="modal-btn btn-close" (click)="closeItemModal()">Cancelar</button>
-            <button class="modal-btn btn-danger" (click)="confirmDelete()">Sí, Eliminar</button>
-          </div>
-        </ng-container>
-
+    <ng-container *ngIf="modalType === 'view'">
+      <h3 class="modal-title">📄 Item Details</h3>
+      <div class="item-details-image">
+        <img [src]="getImageUrl(selectedItem?.image_path)" alt="Item">
       </div>
-    </div>
+      <div class="item-details-text">
+        <p><strong>Name:</strong> {{ selectedItem?.name }}</p>
+        <p><strong>Category:</strong> <span class="badge">{{ selectedItem?.category }}</span></p>
+        <p><strong>Style:</strong> <span class="badge">{{ selectedItem?.style }}</span></p>
+        <p><strong>Weather:</strong> <span class="badge">{{ selectedItem?.weather }}</span></p>
+        <p><strong>Gender:</strong> <span class="badge">{{ selectedItem?.gender }}</span></p>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn btn-close" (click)="closeItemModal()">Cerrar</button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="modalType === 'edit'">
+      <h3 class="modal-title">✏️ Edit Item</h3>
+      <div class="edit-form">
+        <label>Name:</label>
+        <input 
+          type="text" 
+          class="edit-input" 
+          [(ngModel)]="editNameInput" 
+          (keyup.enter)="confirmEdit()"
+          placeholder="Ex: 'Blue Denim Jacket'">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn btn-close" (click)="closeItemModal()">Cancel</button>
+        <button class="modal-btn btn-upload" (click)="confirmEdit()">Save Changes</button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="modalType === 'delete'">
+      <h3 class="modal-title" style="color: #f44336;">🗑️ Delete Item</h3>
+      <p style="color: #ccc; font-size: 14px; line-height: 1.5;">
+        Are you sure you want to delete <strong>{{ selectedItem?.name }}</strong>? <br>
+        This action will remove the item from your digital wardrobe and cannot be undone.
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn btn-close" (click)="closeItemModal()">Cancel</button>
+        <button class="modal-btn btn-danger" (click)="confirmDelete()">Yes, Delete</button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="modalType === 'add'">
+      <h3 class="modal-title">➕ Add New Item</h3>
+      <div class="edit-form">
+        <label>Name this cloth:</label>
+        <input 
+          type="text" 
+          class="edit-input" 
+          [(ngModel)]="newItemName" 
+          (keyup.enter)="confirmAdd()"
+          placeholder="Ex: 'Red Cotton T-Shirt'">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn btn-close" (click)="closeItemModal()">Cancel</button>
+        <button class="modal-btn btn-upload" (click)="confirmAdd()" [disabled]="!newItemName.trim()">Save</button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="modalType === 'cleanAll'">
+      <h3 class="modal-title" style="color: #4caf50;">🧺 Wash All Clothes</h3>
+      <p style="color: #ccc; font-size: 14px; line-height: 1.5;">
+        Are you sure you want to mark all your dirty clothes as clean? <br>
+        They will become available for new outfits again!
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn btn-close" (click)="closeItemModal()">Cancel</button>
+        <button class="modal-btn btn-upload" (click)="confirmCleanAll()">Yes, wash them</button>
+      </div>
+    </ng-container>
+
+  </div> </div> ```
+
+

@@ -13,10 +13,12 @@ import { ItemService } from '../../services/item.service';
 })
 export class ColectionComponent implements OnInit {
   items: any[] = [];
-  modalType: 'none' | 'view' | 'edit' | 'delete' = 'none';
+  modalType: 'none' | 'view' | 'edit' | 'delete' | 'add' | 'cleanAll' = 'none';
   selectedItem: any = null;
   editNameInput: string = '';
   currentSort: string = 'default'; 
+  pendingFile: File | null = null;
+  newItemName: string = '';
 
 
   showBatchModal = false;
@@ -70,10 +72,10 @@ export class ColectionComponent implements OnInit {
     fileInput.onchange = (event: any) => {
       const file = event.target.files[0];
       if (file) {
-        const nombre = prompt("Nombre para esta prenda:", file.name.replace(/\.[^.]+$/, '')) || file.name;
-        this.itemService.createItem(file, nombre).subscribe(() => {
-          this.cargarItems();
-        });
+        this.pendingFile = file;
+        this.newItemName = file.name.replace(/\.[^.]+$/, ''); 
+        this.modalType = 'add';
+        this.cdr.detectChanges();
       }
     };
     fileInput.click();
@@ -93,7 +95,7 @@ export class ColectionComponent implements OnInit {
       ) as File[];
 
       if (files.length === 0) {
-        alert('No se encontraron imágenes en la carpeta seleccionada.');
+        alert('No images found in the selected folder.');
         return;
       }
 
@@ -133,7 +135,7 @@ export class ColectionComponent implements OnInit {
       },
       error: (err) => {
         this.batchStatus = 'error';
-        this.batchMessage = err.error?.detail ?? 'Error al subir las imágenes.';
+        this.batchMessage = err.error?.detail ?? 'There was an error uploading your files.';
         this.cdr.detectChanges();
       }
     });
@@ -151,14 +153,23 @@ export class ColectionComponent implements OnInit {
 onViewClick(item: any) {
     this.selectedItem = item;
     this.modalType = 'view';
-    this.cdr.detectChanges(); // <-- Obligamos a Angular a mostrar el modal
+    this.cdr.detectChanges(); 
   }
 
   onEditClick(item: any) {
     this.selectedItem = item;
     this.editNameInput = item.name;
     this.modalType = 'edit';
-    this.cdr.detectChanges(); // <-- Obligamos a Angular a mostrar el modal
+    this.cdr.detectChanges(); 
+  }
+
+  confirmAdd() {
+    if (this.pendingFile && this.newItemName.trim()) {
+      this.itemService.createItem(this.pendingFile, this.newItemName).subscribe(() => {
+        this.cargarItems();
+        this.closeItemModal();
+      });
+    }
   }
 
   confirmEdit() {
@@ -175,7 +186,7 @@ onViewClick(item: any) {
   onDeleteClick(item: any) {
     this.selectedItem = item;
     this.modalType = 'delete';
-    this.cdr.detectChanges(); // <-- Obligamos a Angular a mostrar el modal
+    this.cdr.detectChanges(); 
   }
 
   confirmDelete() {
@@ -189,7 +200,9 @@ onViewClick(item: any) {
     this.modalType = 'none';
     this.selectedItem = null;
     this.editNameInput = '';
-    this.cdr.detectChanges(); // <-- Obligamos a Angular a ocultar el modal
+    this.pendingFile = null;  // Limpiamos el archivo temporal
+    this.newItemName = '';    // Limpiamos el nombre
+    this.cdr.detectChanges(); 
   }
 
   toggleEstadoLimpio(item: any) {
@@ -201,10 +214,14 @@ onViewClick(item: any) {
   }
 
   onCleanAllClick() {
-    if (confirm("¿Marcar TODAS las prendas como limpias?")) {
-      this.itemService.cleanAllItems().subscribe(() => {
-        this.cargarItems();
-      });
-    }
+    this.modalType = 'cleanAll';
+    this.cdr.detectChanges();
+  }
+
+  confirmCleanAll() {
+    this.itemService.cleanAllItems().subscribe(() => {
+      this.cargarItems();
+      this.closeItemModal();
+    });
   }
 }
