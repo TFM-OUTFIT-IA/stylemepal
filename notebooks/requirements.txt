@@ -1,0 +1,32 @@
+# ==============================================================
+# requirements.txt - Fashion Recommendation System
+# ==============================================================
+# IMPORTANT: Before running this file, make sure you have
+# already installed PyTorch with CUDA and PyTorch Geometric
+# manually following the steps in README.md.
+# ==============================================================
+
+# Core Scientific Stack
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+joblib
+pyarrow
+tqdm
+
+# Image Processing
+Pillow
+
+# HuggingFace Ecosystem
+transformers
+datasets
+huggingface_hub
+
+torch_geometric
+
+# TensorFlow (EfficientNet notebook)
+# On Windows, GPU support is included natively from TF v2.10+
+tensorflow
+
