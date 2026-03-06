@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { OutfitService } from '../../services/outfit.service';
 import { ItemService } from '../../services/item.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-landing',
@@ -15,9 +16,11 @@ export class LandingComponent implements OnInit {
   outfits: any[] = [];
   items: any[] = [];
   isLoading = true;
+  isCleaning: boolean = false;
 
   // Lightbox
   lightboxOutfit: any = null;
+  outfitToDelete: any = null;
 
   constructor(
     private outfitService: OutfitService,
@@ -89,11 +92,50 @@ export class LandingComponent implements OnInit {
     this.lightboxOutfit = null;
   }
 
+
+
+  cleanOutfitItems() {
+    if (!this.lightboxOutfit || !this.lightboxOutfit.items_snapshot) return;
+
+    const itemsToClean = this.lightboxOutfit.items_snapshot
+      .filter((slot: any) => slot.item_id) 
+      .map((slot: any) => slot.item_id);
+
+    if (itemsToClean.length === 0) return;
+
+    this.isCleaning = true;
+
+    const updateRequests = itemsToClean.map((id: string) =>
+      this.itemService.updateItem(id, { limpio: true })
+    );
+
+    forkJoin(updateRequests).subscribe({
+      next: () => {
+        this.isCleaning = false;
+        this.loadAll(); 
+      },
+      error: (err) => {
+        this.isCleaning = false;
+        console.error(err);
+      }
+    });
+  }
+
   deleteOutfit(outfit: any) {
-    if (!confirm('¿Eliminar este outfit del historial?')) return;
-    this.outfitService.deleteOutfit(outfit.id).subscribe(() => {
-      this.outfits = this.outfits.filter(o => o.id !== outfit.id);
+    this.outfitToDelete = outfit;
+  }
+
+  confirmDelete() {
+    if (!this.outfitToDelete) return;
+    
+    this.outfitService.deleteOutfit(this.outfitToDelete.id).subscribe(() => {
+      this.outfits = this.outfits.filter(o => o.id !== this.outfitToDelete.id);
+      this.outfitToDelete = null; 
       this.cdr.detectChanges();
     });
+  }
+
+  cancelDelete() {
+    this.outfitToDelete = null;
   }
 }
