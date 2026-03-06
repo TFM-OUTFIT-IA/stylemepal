@@ -123,7 +123,7 @@
           class="header-btn primary" 
           (click)="cleanOutfitItems()" 
           [disabled]="isCleaning"
-          title="Marcar todas estas prendas como limpias">
+          title="Mark all these items as clean">
           <span *ngIf="!isCleaning">🧺 Clean Outfit</span>
           <span *ngIf="isCleaning">...</span>
         </button>
@@ -154,16 +154,16 @@
   
   <div class="lightbox-card lightbox-card-sm" (click)="$event.stopPropagation()">
     <div class="delete-icon">🗑️</div>
-    <h3 class="lightbox-title delete-title">Eliminar Outfit</h3>
+    <h3 class="lightbox-title delete-title">Delete outfit</h3>
     
     <p class="delete-text">
-      ¿Estás seguro de que deseas eliminar este outfit de tu historial? <br>
-      Esta acción no se puede deshacer.
+      Are you sure you want to delete this outfit from your history? <br>
+      This action cannot be undone.
     </p>
 
     <div class="lightbox-actions actions-center">
-      <button class="header-btn" (click)="cancelDelete()">Cancelar</button>
-      <button class="header-btn btn-danger" (click)="confirmDelete()">Sí, Eliminar</button>
+      <button class="header-btn" (click)="cancelDelete()">Cancel</button>
+      <button class="header-btn btn-danger" (click)="confirmDelete()">Yes, Delete</button>
     </div>
   </div>
 

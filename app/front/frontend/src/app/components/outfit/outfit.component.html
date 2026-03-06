@@ -69,11 +69,11 @@
 
         <div class="action-buttons">
           <button class="btn-generar" (click)="onGenerar()" [disabled]="isLoading">
-            <span *ngIf="!isLoading">Generar 🪄</span>
+            <span *ngIf="!isLoading">Generate 🪄</span>
             <span *ngIf="isLoading">...</span>
           </button>
           <button class="btn-confirmar" (click)="onConfirmar()" [disabled]="isLoading">
-            Confirmar ✔️
+            Confirm ✔️
           </button>
         </div>
       </div>
@@ -84,12 +84,12 @@
   <!-- Agent Panel (placeholder) -->
   <div class="agent-panel">
     <div class="agent-header">
-      <span class="agent-avatar">🤖</span> Asistente StyleMe
+      <span class="agent-avatar">🤖</span> StyleMe Assistant
     </div>
     
     <div class="agent-chatbox" #chatScroll>
       <div class="message agent-msg">
-        ¡Hola! Dime a dónde vas, cuándo y qué tipo de evento es, y te prepararé el conjunto ideal.
+        Hi! Tell me where you're going, when, and what kind of event it is, and I'll put together the perfect outfit for you.
       </div>
 
       <div *ngFor="let msg of chatHistory" [ngClass]="msg.role === 'user' ? 'message user-msg' : 'message agent-msg'">
@@ -97,7 +97,7 @@
       </div>
 
       <div class="message agent-msg typing-indicator" *ngIf="isAgentTyping">
-        Escribiendo...
+        Writing...
       </div>
     </div>
 
@@ -107,7 +107,7 @@
         class="chat-input" 
         [(ngModel)]="userMessage" 
         (keyup.enter)="sendMessage()"
-        placeholder="Ej: Mañana tengo una cena de empresa en Málaga..."
+        placeholder="Ex.: Tomorrow I have a business dinner in Malaga..."
         [disabled]="isAgentTyping"
       >
       <button class="send-btn" (click)="sendMessage()" [disabled]="!userMessage.trim() || isAgentTyping">
@@ -123,8 +123,8 @@
   <div class="slot-wrapper" [class.is-locked]="locked[cat.id]">
 
     <div class="slot-controls">
-      <button class="mini-btn btn-random" (click)="onRandomizeSingle(cat.id)" [disabled]="locked[cat.id] || isLoading" title="Cambiar prenda">🔄</button>
-      <button class="mini-btn" [ngClass]="locked[cat.id] ? 'btn-unblock' : 'btn-block'" (click)="toggleLock(cat.id)" title="Bloquear/Desbloquear">
+      <button class="mini-btn btn-random" (click)="onRandomizeSingle(cat.id)" [disabled]="locked[cat.id] || isLoading" title="Change Piece">🔄</button>
+      <button class="mini-btn" [ngClass]="locked[cat.id] ? 'btn-unblock' : 'btn-block'" (click)="toggleLock(cat.id)" title="Lock/Unlock">
         {{ locked[cat.id] ? '🔓' : '❌' }}
       </button>
     </div>

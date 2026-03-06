@@ -60,8 +60,8 @@ export class RegisterComponent implements OnInit {
     this.authService.register(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.successMessage = '¡Cuenta creada con éxito! Redirigiendo al login...';
-        this.cdr.detectChanges(); // Repintamos también en el éxito por si acaso
+        this.successMessage = 'Account created successfully! Redirecting to login...';
+        this.cdr.detectChanges(); 
         
         setTimeout(() => {
           this.router.navigate(['/login']);
@@ -70,16 +70,16 @@ export class RegisterComponent implements OnInit {
       error: (err) => {
         this.isLoading = false;
         
-        console.error('Error crudo recibido en el componente:', err); 
+        console.error('Raw error received in the component:', err); 
 
         if (err.status === 400) {
-          this.errorMessage = 'Ese nombre de usuario ya está registrado.';
+          this.errorMessage = 'This username is already taken.';
         } else if (err.status === 422) {
-          this.errorMessage = 'Los datos enviados no cumplen con el formato requerido.';
+          this.errorMessage = 'The submitted data does not meet the required format.';
         } else if (err.error && err.error.detail) {
           this.errorMessage = err.error.detail;
         } else {
-          this.errorMessage = 'No se pudo registrar.';
+          this.errorMessage = 'Failed to register.';
         }
         
         this.cdr.detectChanges();
