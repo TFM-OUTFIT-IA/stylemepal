@@ -61,7 +61,7 @@ class OutfitRecommender:
         style: str,
         weather: str,
         gender: str,
-        exclude_id: str,
+        exclude_ids: list,
         user_id: int,
     ):
         """
@@ -92,8 +92,10 @@ class OutfitRecommender:
                 ItemDB.style == s,
                 ItemDB.weather == w,
                 ItemDB.compat_embedding.is_not(None),
-                ItemDB.id != exclude_id,
             ]
+            if exclude_ids:
+                filters.append(ItemDB.id.notin_(exclude_ids))
+                
             if g is not None:
                 filters.append(ItemDB.gender == g)
             return (
@@ -149,7 +151,11 @@ class OutfitRecommender:
         anchor_item: ItemDB,
         filters: dict,
         user_id: int,
+        exclude_ids: list = None,
     ) -> list:
+        exclude_ids = exclude_ids or []
+        if anchor_item.id not in exclude_ids:
+            exclude_ids.append(anchor_item.id)
         if anchor_item.compat_embedding is None:
             raise ValueError(f"Item {anchor_item.id} has no compatibility embedding.")
 
@@ -179,7 +185,7 @@ class OutfitRecommender:
                 style=style,
                 weather=weather,
                 gender=gender,
-                exclude_id=anchor_item.id,
+                exclude_ids=exclude_ids,
                 user_id=user_id,
             )
 

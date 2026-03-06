@@ -37,8 +37,11 @@ export class ItemService {
     return this.http.put<any>(`${this.apiUrl}/bulk/dirty`, { ids });
   }
 
-  getRecommendation(style: string, weather: string, gender: string): Observable<any> {
-    const params = { style, weather, gender };
+  getRecommendation(style: string, weather: string, gender: string, anchorId?: string, excludeIds?: string[]): Observable<any> {
+    let params: any = { style, weather, gender };
+    if (anchorId) params.anchor_id = anchorId;
+    if (excludeIds && excludeIds.length > 0) params.exclude_ids = excludeIds; 
+    
     return this.http.get<any>(`${this.apiUrl}/recommend`, { params });
   }
 
