@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ItemService } from '../../services/item.service';
@@ -89,7 +89,6 @@ export class OutfitComponent implements OnInit {
         this.isLoading = false;
         this.timestamp = Date.now();
 
-        // Build a fresh outfit object — replacing the reference triggers Angular change detection
         const newOutfit: Record<string, any> = {};
         this.slotsLayout.forEach(s => {
           newOutfit[s.id] = this.locked[s.id] ? this.outfit[s.id] : null;
@@ -120,17 +119,21 @@ export class OutfitComponent implements OnInit {
         });
 
         this.outfit = newOutfit;
-        this.cdr.detectChanges();
+        this.cdr.detectChanges(); 
       },
       error: (err) => {
         this.isLoading = false;
+        
         if (err.status === 404) {
-          this.errorMessage = 'No tienes prendas procesadas en tu armario. Sube algunas prendas primero.';
+          this.errorMessage = /* err.error?.detail || */ 'No tienes prendas limpias para este estilo. ¡Toca hacer la colada o probar otro estilo!';
         } else if (err.status === 503) {
           this.errorMessage = 'El motor de recomendación no está disponible.';
         } else {
           this.errorMessage = 'Error al generar el outfit. Inténtalo de nuevo.';
         }
+        
+
+        this.cdr.detectChanges(); 
       }
     });
   }
@@ -196,6 +199,60 @@ export class OutfitComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => alert('Error al guardar el outfit.')
+    });
+  }
+
+  // --- VARIABLES DEL CHAT ---
+  userMessage: string = '';
+  chatHistory: { role: string, content: string }[] = [];
+  isAgentTyping: boolean = false;
+
+  @ViewChild('chatScroll') private chatScrollContainer!: ElementRef;
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
+    } catch(err) { }
+  }
+
+  sendMessage() {
+    if (!this.userMessage.trim()) return;
+
+    const prompt = this.userMessage;
+    this.chatHistory.push({ role: 'user', content: prompt });
+    this.userMessage = ''; 
+    this.isAgentTyping = true;
+    this.errorMessage = '';
+
+    this.itemService.askAgent(prompt).subscribe({
+      next: (response) => {
+        this.isAgentTyping = false;
+        
+        this.chatHistory.push({ role: 'agent', content: response.agent_reply });
+
+        const aiStyle = response.extracted_data?.estilo;
+        const aiWeather = response.extracted_data?.clima; 
+
+        if (aiStyle && this.styles.includes(aiStyle)) {
+          this.selectedStyle = aiStyle;
+        }
+
+        if (aiWeather && this.weathers.includes(aiWeather)) {
+          this.selectedWeather = aiWeather;
+        }
+
+        this.cdr.detectChanges();
+        this.onGenerar();
+
+      },
+      error: (err) => {
+        this.isAgentTyping = false;
+        this.chatHistory.push({ role: 'agent', content: 'Lo siento, ha habido un error.' });
+      }
     });
   }
 }

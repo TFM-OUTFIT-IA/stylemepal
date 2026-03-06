@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     # DB
     DATABASE_URL: str
 
+    # Agent
+    GROQ_API_KEY: str
+
     # Model Paths
     PROBE_WEIGHTS_PATH: str = "/app/data/weights/fashion_classifier_fashionclip_polyvore.pth"
     LABEL_ENCODER_PATH: str = "/app/data/weights/label_encoder.pkl"

@@ -104,3 +104,12 @@ class OutfitSaveResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class AgentRequest(BaseModel):
+    prompt: str
+
+class AgentResponse(BaseModel):
+    agent_reply: str
+    extracted_data: dict
+    weather: str
