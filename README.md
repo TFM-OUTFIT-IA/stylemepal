@@ -4,11 +4,11 @@
 
 **StyleMePal AI** es un proyecto innovador de Inteligencia Artificial enfocado en la moda. Esta aplicación resuelve el problema de "Cold Start" en la compatibilidad de moda permitiendo a los usuarios digitalizar su propio armario y generar *outfits* dinámicos basados en preferencias de estilo, condiciones climáticas y reglas taxonómicas.
 
-> [Presentación del proyecto Canva]()
+> [Presentación del proyecto Canva](https://www.canva.com/design/DAHDNFYbHP4/PBaLgkM7gz6mdmVErmepUg/edit?utm_content=DAHDNFYbHP4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 >
 > [Presentación del proyecto PDF]()
 >
-> [Video explicatorio]()
+> [Video explicatorio](https://www.youtube.com/watch?v=FAT0--pqTHg)
 > 
 > [App desplegada](https://stylemepal.duckdns.org/)
 >
